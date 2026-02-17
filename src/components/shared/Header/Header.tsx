@@ -18,10 +18,11 @@ import {
 
 // 🔥 Replace this with your real auth hook
 const useAuth = () => {
-    const user = {
-        name: "Hasan",
-        email: "hasan@gmail.com",
-    }; // null if not logged in
+    // const user = {
+    //     name: "Hasan",
+    //     email: "hasan@gmail.com",
+    // }; // null if not logged in
+    const user = '';
 
     const logout = () => {
         console.log("Logged out");
