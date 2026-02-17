@@ -44,11 +44,11 @@ export default function Header() {
 
     const menuItems = [
         { title: "Home", url: "/" },
-        { title: "Events", url: "/events" },
         { title: "About", url: "/about" },
+        { title: "Products", url: "/products" },
         ...(user ? [{ title: "Dashboard", url: "/dashboard/overview" }] : []),
         ...(user
-            ? [{ title: "Create Event", url: "/dashboard/create-event" }]
+            ? [{ title: "Create Product", url: "/dashboard/create-product" }]
             : []),
 
         // ...(isAuthenticated ? [{ title: "My Events", url: "/my-events" }] : []),
@@ -77,7 +77,7 @@ export default function Header() {
                     className="flex items-center gap-2 font-semibold text-xl hover:opacity-80 transition-opacity"
                 >
                     <Calendar className="h-6 w-6" />
-                    <span>Next Event</span>
+                    <span>Habib and Brothers</span>
                 </button>
 
                 {/* Desktop Navigation */}
