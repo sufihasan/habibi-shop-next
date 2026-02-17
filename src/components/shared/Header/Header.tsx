@@ -1,148 +1,192 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { Menu, Store, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Sheet,
     SheetContent,
+    SheetHeader,
+    SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
+import { getAuthUser } from "@/service/getAuthUser";
+import { logout } from "@/service/logout";
+import { TUser } from "@/types/user";
 
-// 🔥 Replace this with your real auth hook
-const useAuth = () => {
+import { Calendar, Menu } from "lucide-react";
+import Link from "next/link";
+// import Link from "next/link";  
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+export default function Header() {
+    const router = useRouter();
+    const [user, setUser] = useState<TUser | null>(null);
+
+    // if using localStorage
+    // const { isAuthenticated } = useAuth();
+    // const { isAuthenticated, logout } = useAuth();
     // const user = {
-    //     name: "Hasan",
-    //     email: "hasan@gmail.com",
-    // }; // null if not logged in
-    const user = '';
+    //     name: 'Hasan sarder',
+    //     email: 'hasan6nh@gmail.com'
+    // }
 
-    const logout = () => {
-        console.log("Logged out");
+    // if using cookies
+    useEffect(() => {
+        const fetchUser = async () => {
+            const user = await getAuthUser();
+            setUser(user);
+        };
+        fetchUser();
+    }, []);
+
+    const [mobileOpen, setMobileOpen] = useState(false);
+
+    const menuItems = [
+        { title: "Home", url: "/" },
+        { title: "Events", url: "/events" },
+        { title: "About", url: "/about" },
+        ...(user ? [{ title: "Dashboard", url: "/dashboard/overview" }] : []),
+        ...(user
+            ? [{ title: "Create Event", url: "/dashboard/create-event" }]
+            : []),
+
+        // ...(isAuthenticated ? [{ title: "My Events", url: "/my-events" }] : []),
+        // ...(isAuthenticated
+        //     ? [{ title: "Create Event", url: "/events/create" }]
+        //     : []),
+
+    ];
+
+    const handleNavigation = (url: string) => {
+        router.push(url);
+        setMobileOpen(false);
     };
 
-    return { user, logout };
-};
-
-export default function Navbar() {
-    const { user, logout } = useAuth();
-    const [open, setOpen] = useState(false);
-
-    const navLinks = (
-        <>
-            <Link href="/" className="hover:text-green-600 transition">
-                Home
-            </Link>
-            <Link href="/about" className="hover:text-green-600 transition">
-                About
-            </Link>
-            <Link href="/products" className="hover:text-green-600 transition">
-                Products
-            </Link>
-        </>
-    );
+    const handleLogoutClick = () => {
+        setMobileOpen(false);
+        logout();
+    };
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-            <div className="max-w-7xl mx-auto px-4">
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+            <div className="container flex h-16 items-center justify-between px-4">
+                {/* Logo */}
+                <button
+                    onClick={() => handleNavigation("/")}
+                    className="flex items-center gap-2 font-semibold text-xl hover:opacity-80 transition-opacity"
+                >
+                    <Calendar className="h-6 w-6" />
+                    <span>Next Event</span>
+                </button>
 
-                <div className="flex h-16 items-center justify-between">
+                {/* Desktop Navigation */}
+                <nav className="hidden md:flex items-center gap-6">
+                    {menuItems.map((item) => (
+                        <Link key={item.url} href={item.url}>
+                            <button
+                                key={item.url}
+                                className="text-sm font-medium transition-colors hover:text-primary"
+                            >
+                                {item.title}
+                            </button>
+                        </Link>
+                    ))}
+                </nav>
 
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2">
-                        <Store className="text-green-600" />
-                        <span className="text-xl font-bold text-green-700">
-                            Habib & Brothers
-                        </span>
-                    </Link>
-
-                    {/* Desktop Nav */}
-                    <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-                        {navLinks}
-
-                        {!user ? (
-                            <>
-                                <Link href="/login">
-                                    <Button variant="ghost">Login</Button>
-                                </Link>
-                                <Link href="/signup">
-                                    <Button className="bg-green-600 hover:bg-green-700">
-                                        Sign Up
-                                    </Button>
-                                </Link>
-                            </>
-                        ) : (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="flex items-center gap-2">
-                                        <User size={18} />
-                                        {user.name}
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>
-                                        <Link href="/profile">Profile</Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={logout}>
-                                        Logout
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        )}
-                    </nav>
-
-                    {/* Mobile Menu */}
-                    <div className="md:hidden">
-                        <Sheet open={open} onOpenChange={setOpen}>
-                            <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    <Menu />
-                                </Button>
-                            </SheetTrigger>
-
-                            <SheetContent side="right" className="w-64">
-                                <div className="flex flex-col gap-6 mt-8 text-base font-medium">
-
-                                    {navLinks}
-
-                                    {!user ? (
-                                        <>
-                                            <Link href="/login" onClick={() => setOpen(false)}>
-                                                Login
-                                            </Link>
-                                            <Link href="/signup" onClick={() => setOpen(false)}>
-                                                Sign Up
-                                            </Link>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Link href="/profile" onClick={() => setOpen(false)}>
-                                                Profile
-                                            </Link>
-                                            <button
-                                                onClick={() => {
-                                                    logout();
-                                                    setOpen(false);
-                                                }}
-                                                className="text-left"
-                                            >
-                                                Logout
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            </SheetContent>
-                        </Sheet>
-                    </div>
-
+                {/* Desktop Auth Buttons */}
+                <div className="hidden md:flex items-center gap-3">
+                    {user ? (
+                        <>
+                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                            <Button onClick={handleLogoutClick} size="sm">
+                                Logout
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                variant="outline"
+                                onClick={() => handleNavigation("/signup")}
+                                size="sm"
+                            >
+                                Sign Up
+                            </Button>
+                            <Button onClick={() => handleNavigation("/login")} size="sm">
+                                Login
+                            </Button>
+                        </>
+                    )}
                 </div>
+
+                {/* Mobile Menu */}
+                <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                    <SheetTrigger asChild className="md:hidden">
+                        <Button variant="ghost" size="icon">
+                            <Menu className="h-5 w-5" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-75">
+                        <SheetHeader>
+                            <SheetTitle className="flex items-center gap-2">
+                                <Calendar className="h-5 w-5" />
+                                EventHub
+                            </SheetTitle>
+                        </SheetHeader>
+                        <div className="flex flex-col gap-4 mt-8">
+                            {/* Mobile Navigation */}
+                            <nav className="flex flex-col gap-2">
+                                {menuItems.map((item) => (
+                                    <Link key={item.url} href={item.url}>
+                                        <button
+                                            key={item.url}
+                                            className="text-left px-3 py-2 rounded-md hover:bg-accent transition-colors"
+                                        >
+                                            {item.title}
+                                        </button>
+                                    </Link>
+                                ))}
+                            </nav>
+
+                            {/* Mobile Auth Buttons */}
+                            <div className="flex flex-col gap-2 pt-4 border-t">
+                                {user ? (
+                                    <>
+                                        <div className="px-3 py-2 text-sm text-muted-foreground">
+                                            <div className="font-medium text-foreground">
+                                                {user.email}
+                                            </div>
+                                            <div className="text-xs">{user.email}</div>
+                                        </div>
+                                        <Button
+                                            onClick={handleLogoutClick}
+                                            variant="outline"
+                                            className="w-full"
+                                        >
+                                            Logout
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button
+                                            onClick={() => handleNavigation("/login")}
+                                            variant="outline"
+                                            className="w-full"
+                                        >
+                                            Login
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleNavigation("/signup")}
+                                            className="w-full"
+                                        >
+                                            Sign Up
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </SheetContent>
+                </Sheet>
             </div>
         </header>
     );
