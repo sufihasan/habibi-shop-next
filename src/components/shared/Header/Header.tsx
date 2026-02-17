@@ -8,7 +8,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
-import { useAuth } from "@/hooks/useAuth";
+// import { useAuth } from "@/hooks/useAuth";
 import { getAuthUser } from "@/service/getAuthUser";
 import { logout } from "@/service/logout";
 import { TUser } from "@/types/user";
